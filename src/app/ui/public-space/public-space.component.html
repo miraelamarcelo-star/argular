@@ -1,0 +1,108 @@
+<!-- Outer Container -->
+<div class="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
+
+  <!-- 1. LOADING STATE -->
+  @if (loading()) {
+    <div class="flex-1 flex flex-col items-center justify-center p-8 bg-white min-h-[400px]">
+      <div class="w-10 h-10 border-4 border-indigo-600/25 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p class="text-sm text-slate-500 mt-4 font-medium tracking-wide">Carregando Presença Digital...</p>
+    </div>
+  }
+
+  <!-- 2. ERROR STATE -->
+  @if (!loading() && error()) {
+    <div class="flex-1 flex items-center justify-center p-6 bg-slate-50">
+      <div class="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-sm">
+        <div class="w-14 h-14 bg-rose-50 border border-rose-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <mat-icon class="text-rose-500 text-3xl">domain_disabled</mat-icon>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 tracking-tight">Portal Indisponível</h3>
+        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+          O portal público desta empresa não pôde ser carregado. Verifique a URL ou certifique-se de que o espaço público foi publicado no OS.
+        </p>
+        <div class="mt-8 pt-6 border-t border-slate-100">
+          <a routerLink="/" class="text-xs font-bold text-indigo-600 hover:text-indigo-500 flex items-center justify-center gap-1">
+            <mat-icon class="text-[16px]">arrow_back</mat-icon>
+            Voltar para a Plataforma Central
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 3. RENDER SPACE -->
+  @if (!loading() && !error() && data(); as space) {
+    <div>
+
+      <!-- Draft/Preview Top Warning Banner -->
+      @if (space.status === 'draft') {
+        <div class="bg-amber-500 text-slate-950 px-4 py-2 text-center text-xs font-bold flex items-center justify-center gap-2 relative z-50 shadow-sm">
+          <mat-icon class="text-[18px]">warning</mat-icon>
+          <span>Visualização de Rascunho. Este site ainda não está visível para o público geral.</span>
+        </div>
+      }
+
+      <!-- Header -->
+      <header class="bg-white border-b border-slate-100 sticky top-0 z-40 backdrop-blur-md bg-white/90">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          
+          <!-- Brand Logo and Title -->
+          <div class="flex items-center gap-4">
+            @if (space.logo) {
+              <img [src]="space.logo" alt="Logo" class="w-10 h-10 rounded-xl object-cover border border-slate-100">
+            } @else {
+              <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                <mat-icon>store</mat-icon>
+              </div>
+            }
+            <div>
+              <h1 class="text-base font-black tracking-tight text-slate-900 leading-none">{{ space.title }}</h1>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mt-1 block">Espaço Público</span>
+            </div>
+          </div>
+
+          <!-- Contact Shortcut Button -->
+          <div class="flex items-center gap-4">
+            @if (space.phone) {
+              <a [href]="'tel:' + space.phone" 
+                 class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-950 transition-colors">
+                <mat-icon class="text-[16px]">phone</mat-icon>
+                {{ space.phone }}
+              </a>
+            }
+            <a href="#contato" 
+               [style.background-color]="space.themeColor" 
+               class="px-5 py-2.5 text-white text-xs font-bold rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
+              Falar Conosco
+            </a>
+          </div>
+
+        </div>
+      </header>
+
+      <!-- TEMPLATE 1: RESTAURANTE -->
+      @if (space.templateId === 'restaurant') {
+        <app-restaurant-template [space]="space" (addToCart)="onAddProduct($event)" />
+      }
+
+      <!-- TEMPLATE 2: VAREJO -->
+      @if (space.templateId === 'retail') {
+        <app-retail-template [space]="space" (addToCart)="onAddProduct($event)" />
+      }
+
+      <!-- TEMPLATE 3: BUSINESS -->
+      @if (space.templateId === 'business') {
+        <app-business-template [space]="space" />
+      }
+
+      <!-- UNIFIED FOOTER -->
+      <app-public-space-footer [space]="space" />
+
+      <!-- INTERACTIVE SHOPPING BAG DRAWER -->
+      <app-public-space-cart-drawer [space]="space" />
+
+    </div>
+  }
+
+</div>
+

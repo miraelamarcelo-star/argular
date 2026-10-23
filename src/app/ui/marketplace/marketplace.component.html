@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+  
+  <!-- Central Header -->
+  <header class="bg-slate-900 text-white shrink-0 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-lg text-white">3E</div>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight">3eatcru Public</h1>
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Marketplace do Ecossistema</p>
+        </div>
+      </div>
+      
+      <nav class="flex items-center gap-4">
+        <a routerLink="/" class="text-xs font-semibold text-slate-300 hover:text-white transition-colors flex items-center gap-1">
+          <mat-icon class="text-sm">arrow_back</mat-icon> Voltar ao Portal
+        </a>
+        <a routerLink="/access" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+          <mat-icon class="text-xs">devices</mat-icon> Entrar no OS
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Marketplace Hero Section -->
+  <section class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white py-12 px-4 relative overflow-hidden">
+    <!-- Glowing background patterns -->
+    <div class="absolute w-[400px] h-[400px] rounded-full bg-indigo-500/10 blur-[80px] -top-20 -left-20"></div>
+    <div class="absolute w-[300px] h-[300px] rounded-full bg-emerald-500/5 blur-[80px] bottom-10 right-10"></div>
+    
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Descoberta Centralizada</span>
+      <h2 class="text-3xl sm:text-4xl font-black mt-3 mb-4 tracking-tight leading-none">
+        Encontre Negócios Locais pelo Ecossistema
+      </h2>
+      <p class="text-sm text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        Cada empresa cadastrada no 3eatcru OS publica seu <strong>Business Space</strong> e suas capacidades diretamente no Marketplace. Encontre restaurantes, varejos e serviços perto de você.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Exploration Space -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+    
+    <!-- Sidebar Filters (Col 1) -->
+    <app-marketplace-filters
+      [simulatedLocations]="simulatedLocations"
+      [selectedLocation]="selectedLocation()"
+      [maxDistance]="maxDistance()"
+      [filterDelivery]="filterDelivery()"
+      [filterPickup]="filterPickup()"
+      [filterBooking]="filterBooking()"
+      [filterOpenNow]="filterOpenNow()"
+      (locationChange)="selectedLocation.set($event)"
+      (maxDistanceChange)="maxDistance.set($event)"
+      (filterDeliveryChange)="filterDelivery.set($event)"
+      (filterPickupChange)="filterPickup.set($event)"
+      (filterBookingChange)="filterBooking.set($event)"
+      (filterOpenNowChange)="filterOpenNow.set($event)" />
+
+    <!-- Marketplace Content Area (Col 2-4) -->
+    <section class="lg:col-span-3 space-y-6">
+      
+      <!-- Search, Categories and Sort Bar -->
+      <app-marketplace-search-header
+        [searchQuery]="searchQuery()"
+        [sortBy]="sortBy()"
+        [selectedCategory]="selectedCategory()"
+        (searchQueryChange)="searchQuery.set($event)"
+        (sortByChange)="sortBy.set($event)"
+        (categoryChange)="selectedCategory.set($event)" />
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="py-24 text-center">
+          <div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mb-4"></div>
+          <p class="text-slate-500 text-xs">Acessando banco de dados público da Central...</p>
+        </div>
+      }
+
+      <!-- Error State -->
+      @if (error()) {
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center text-red-700">
+          <mat-icon class="text-3xl mb-2">error_outline</mat-icon>
+          <p class="font-bold text-sm mb-2">{{ error() }}</p>
+          <button 
+            type="button"
+            (click)="loadListings()"
+            class="text-xs bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1.5 rounded-lg transition-colors">
+            Tentar Novamente
+          </button>
+        </div>
+      }
+
+      <!-- Listings Grid -->
+      @if (!loading() && !error()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          @for (item of filteredListings(); track item.companyId) {
+            <app-marketplace-listing-card [item]="item" />
+          }
+
+          <!-- No Results State -->
+          @if (filteredListings().length === 0) {
+            <div class="col-span-full py-24 text-center text-slate-500">
+              <mat-icon class="text-5xl mb-4 text-slate-300">search_off</mat-icon>
+              <h5 class="font-bold text-base text-slate-800 mb-1">Nenhum estabelecimento encontrado</h5>
+              <p class="text-xs">Tente ajustar seus filtros de distância ou capacidades para ampliar a busca.</p>
+            </div>
+          }
+        </div>
+      }
+
+    </section>
+
+  </main>
+</div>
